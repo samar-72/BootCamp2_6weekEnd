@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BootCamp2_6weekEnd.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace BootCamp2_6weekEnd.Models
 {
@@ -6,6 +7,7 @@ namespace BootCamp2_6weekEnd.Models
     {
         [Key]
         public int Id { get; set; }
+        public string uId { get; set; } = Guid.NewGuid().ToString();
 
         [Required]
         public string Name { get; set; }

@@ -1,23 +1,41 @@
-﻿@* ﻿@model Category *@
+﻿@model BootCamp2_6weekEnd.Models.Category
+
 @{
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit Category </h1>
+<h1>Edit</h1>
 
-<form asp-action="Edit" method="post">
-
-    <div class="form-group">
-        <label for="Name">Category Name</label>
-        <input type="text" class="form-control" id="Name" name="Name" placeholder="Enter Category Name">
+<h4>Category</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="uId" class="control-label"></label>
+                <input asp-for="uId" class="form-control" />
+                <span asp-validation-for="uId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-        <label for="Description">Description</label>
-        <textarea type="text" class="form-control" id="Description" name="Description" placeholder="Enter Description"></textarea>
-    </div>
+</div>
 
-    <button type="submit" class="btn btn-warning">Submit</button>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
 
-    <a asp-action="Index" class="btn btn-secandary">Back</a>
-
-</form>

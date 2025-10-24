@@ -1,16 +1,14 @@
-﻿using BootCamp2_6weekEnd.Filters;
-using BootCamp2_6weekEnd.Repository.Base;
-using BootCamp2_6weekEnd.Repository.Implement;
+﻿using BootCamp2_6weekEnd.Repository.Base;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BootCamp2_6weekEnd.Controllers
 {
     public class AccountsController : Controller
     {
-        private readonly IRepoEmployee _repoEmployee;
-        public AccountsController(IRepoEmployee repoEmployee)
+        private readonly IUnitOfWork _unitOfWork ;
+        public AccountsController(IUnitOfWork unitOfWork)
         {
-            _repoEmployee = repoEmployee;
+           _unitOfWork = unitOfWork;
         }
         public IActionResult Login()
         {
@@ -20,18 +18,21 @@ namespace BootCamp2_6weekEnd.Controllers
         public IActionResult Login(string UserName, string Password)
         {
 
-            var employee = _repoEmployee.Login(UserName, Password);
+            var employee = _unitOfWork.Employees.Login(UserName, Password);
 
-            HttpContext.Session.SetString("UserName", UserName);
-            HttpContext.Session.SetInt32("EmpployeeId", employee.Id);
-
-            return RedirectToAction("Index", "Home");
 
             if (employee == null)
             {
                 ViewBag.Error = "Invalid UserName or Password";
                 return View();
             }
+
+
+            HttpContext.Session.SetString("UserName", UserName);
+            HttpContext.Session.SetInt32("EmpployeeId", employee.Id);
+
+            return RedirectToAction("Index", "Home");
+
         }
 
 

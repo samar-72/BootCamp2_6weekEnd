@@ -1,7 +1,5 @@
-﻿using BootCamp2_6weekEnd.Models;
-using BootCamp2_6weekEnd.Repository.Implement;
-using BootCamp2_6weekEnd.Data;
-using System;
+﻿using BootCamp2_6weekEnd.Data;
+using BootCamp2_6weekEnd.Repository.Base;
 namespace BootCamp2_6weekEnd.Repository.Implement
 {
     public class MainRepository<X> : IRepository<X> where X : class
@@ -11,31 +9,32 @@ namespace BootCamp2_6weekEnd.Repository.Implement
         {
             _context = context;
         }
-
         public void Create(X entity)
         {
             _context.Set<X>().Add(entity);
-            _context.SaveChanges();
-        }
-
-        public void Delete(X entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<X> GetAll()
-        {
-            throw new NotImplementedException();
-        }
-
-        public X GetById(int id)
-        {
-            throw new NotImplementedException();
         }
 
         public void Update(X entity)
         {
-            throw new NotImplementedException();
+            _context.Set<X>().Update(entity);
         }
+
+        public void Delete(X entity)
+        {
+            _context.Set<X>().Remove(entity);
+        }
+
+        public X GetById(int Id)
+        {
+            return _context.Set<X>().Find(Id);
+        }
+
+        public IEnumerable<X> GetAll()
+        {
+            return _context.Set<X>().ToList();
+        }
+
+
+
     }
 }

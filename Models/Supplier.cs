@@ -1,4 +1,6 @@
-﻿namespace BootCamp2_6weekEnd.Models
+﻿using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
+
+namespace BootCamp2_6weekEnd.Models
 {
     public class Supplier
     {
@@ -11,6 +13,7 @@
         public string Address { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
 
     }
 }

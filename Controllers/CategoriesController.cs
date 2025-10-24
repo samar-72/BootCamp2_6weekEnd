@@ -1,114 +1,133 @@
-﻿ using BootCamp2_6weekEnd.Data;
-using BootCamp2_6weekEnd.Filters;
+﻿using BootCamp2_6weekEnd.Interfaces;
 using BootCamp2_6weekEnd.Models;
- 
+using BootCamp2_6weekEnd.Repository.Base;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace BootCamp2_6weekEnd.Controllers
 {
-    [SessionAuthourize]
     public class CategoriesController : Controller
     {
-        private readonly AppDBContext _dbContext; // inject the database context
+        private readonly ICategoryService _categoryService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CategoriesController(AppDBContext dbContext)
+        public CategoriesController(IUnitOfWork unitOfWork)
         {
-            _dbContext = dbContext;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: Categories
         public IActionResult Index()
         {
-            IEnumerable<Category> categories = _dbContext.Categories.ToList();
+            var categories = _unitOfWork.Categories.GetAll();
             return View(categories);
         }
-        [HttpGet]
-        public IActionResult GetAllCategories()
+
+        // GET: Categories/Details/5
+        public IActionResult Details(int? id)
         {
-            IEnumerable<Category> categories = _dbContext.Categories.ToList();
-            return Ok(categories);
+            var category = _unitOfWork.Categories.GetById(id.Value);
+            return View(category);
         }
-        //***********************************************************//
+
         // GET: Categories/Create
-        public IActionResult Create()                                                     
+        public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Categories/Create
         [HttpPost]
-        public IActionResult Create (Category category)
-        {
-            if (string.IsNullOrEmpty(category.Description))
-            {
-                ModelState.AddModelError("Customer", "now you need Desc.");
-            }
-
-            if (ModelState.IsValid)
-            {
-                _dbContext.Categories.Add(category);
-                _dbContext.SaveChanges();
-                TempData["Add"] = "Category has been added Successfully";
-                return RedirectToAction("Index");
-
-            }
-            else
-            {
-                TempData["Error"] = "Please Enter All Data";
-                return View(category);
-            }
-         
-        }
-
-        //***********************************************************//
-        // GET: Categories/Edit
-        public IActionResult Edit(int id)
-        {
-            var category = _dbContext.Categories.Find(id);
-            if (category == null)
-                return NotFound();
-
-            return View(category);
-        }
-
-        // POST: Categories/Edit
-        [HttpPost]
-
-        public IActionResult Edit(Category category)
+        [ValidateAntiForgeryToken]
+        public IActionResult Create([Bind("Id,uId,Name,Description")] Category category)
         {
             if (ModelState.IsValid)
             {
-                _dbContext.Categories.Update(category);
-                _dbContext.SaveChanges();
+                _unitOfWork.Categories.Create(category);
+                _unitOfWork.Save();
                 return RedirectToAction(nameof(Index));
             }
             return View(category);
         }
-        //***********************************************************//
-        // GET: Categories/Delete
-        public IActionResult Delete(int id)
+
+        // GET: Categories/Edit/5
+        public IActionResult Edit(int? id)
         {
-            var category = _dbContext.Categories.Find(id);
-            if (category == null)
+            if (id == null)
+            {
                 return NotFound();
+            }
+
+            var category = _unitOfWork.Categories.GetById(id.Value);
+            if (category == null)
+            {
+                return NotFound();
+            }
+            return View(category);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,uId,Name,Description")] Category category)
+        {
+            if (id != category.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _unitOfWork.Categories.Update(category);
+                    _unitOfWork.Save();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    var exists = _unitOfWork.Categories.GetById(category.Id);
+                    if (exists == null)
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(category);
+        }
+
+        // GET: Categories/Delete/5
+        public IActionResult Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var category = _unitOfWork.Categories.GetById(id.Value);
+            if (category == null)
+            {
+                return NotFound();
+            }
 
             return View(category);
         }
 
-        // POST: Categories/DeleteConfirmed
-        [HttpPost, ActionName("DeleteConfirmed")]
-
+        // POST: Categories/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var category = _dbContext.Categories.Find(id);
-            if (category == null)
-                return NotFound();
+            var category = _unitOfWork.Categories.GetById(id);
+            if (category != null)
+            {
+                _unitOfWork.Categories.Delete(category);
+            }
 
-            _dbContext.Categories.Remove(category);
-            _dbContext.SaveChanges();
-
+            _unitOfWork.Save();
             return RedirectToAction(nameof(Index));
         }
     }

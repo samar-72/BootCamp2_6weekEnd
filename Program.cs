@@ -2,6 +2,8 @@
 using BootCamp2_6weekEnd.Repository.Implement;
 using BootCamp2_6weekEnd.Data;
 using Microsoft.EntityFrameworkCore;
+using BootCamp2_6weekEnd.Interfaces;
+using BootCamp2_6weekEnd.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,17 +12,22 @@ var builder = WebApplication.CreateBuilder(args);
 // -------------------------
 
 // إضافة دعم الـ MVC (Controllers + Views)
+
+builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
+
 builder.Services.AddControllersWithViews();
 
 //  تأكد أن اسم ConnectionString في appsettings.json هو "DefaultConnection" وليس "DefualtConnection"
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DefualtConnection");
 
-builder.Services.AddDbContext<AppDBContext>(options =>
+  builder.Services.AddDbContext<AppDBContext>(options =>
     options.UseLazyLoadingProxies().UseSqlServer(connectionString));
 
 //  تسجيل الـ Repositories في الـ Dependency Injection
 builder.Services.AddScoped(typeof(IRepository<>), typeof(MainRepository<>));
-builder.Services.AddScoped<IRepoEmployee, RepoEmployee>();
+//builder.Services.AddScoped<IRepoEmployee, RepoEmployee>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ICategoryService,CategoryService>();
 
 // إضافة Distributed Cache + Session (مطلوبة لتفعيل الـSession)
 builder.Services.AddDistributedMemoryCache();
